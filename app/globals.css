@@ -333,3 +333,17 @@
     line-height: 2;
   }
 }
+
+@layer base {
+  :root {
+    --hero-overlay-start: #fff;
+    --hero-overlay-mid: rgba(255, 255, 255, 0.82);
+    --hero-overlay-end: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark {
+    --hero-overlay-start: #0a0f1e;
+    --hero-overlay-mid: rgba(10, 15, 30, 0.85);
+    --hero-overlay-end: rgba(10, 15, 30, 0.2);
+  }
+}

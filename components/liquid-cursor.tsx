@@ -2,11 +2,14 @@
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from 'next-themes';
 
 export function LiquidCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
   const positionRef = useRef({ x: 0, y: 0 });
   const targetRef = useRef({ x: 0, y: 0 });
+  const { theme } = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -38,11 +41,33 @@ export function LiquidCursor() {
     };
   }, []);
 
+  // Dark mode: keep original blue, Light mode: use dark slate colors
+// Light mode colors
+const ringColor = isDark
+  ? 'radial-gradient(circle, rgba(79, 126, 233, 0.8) 0%, rgba(30, 93, 217, 0.4) 70%, transparent 100%)'
+  : 'radial-gradient(circle, rgba(79, 126, 233, 0.8) 0%, rgba(30, 93, 217, 0.4) 70%, transparent 100%)';
+
+const coreColor = isDark
+  ? 'radial-gradient(circle, #FFFFFF 0%, #4F7EE9 100%)'
+  : 'radial-gradient(circle, #3700ffff 0%, #4F7EE9 100%)';
+
+const trailColor = isDark
+  ? 'radial-gradient(circle, rgba(79, 126, 233, 0.6) 0%, transparent 100%)'
+  : 'radial-gradient(circle, rgba(255, 255, 255, 1) 0%, transparent 100%)';
+
+  const shadowColor = isDark
+    ? 'rgba(79, 126, 233, 0.9)'
+    : 'rgba(255, 255, 255, 0.9)';
+
+  const glowColor = isDark
+    ? 'rgba(79, 126, 233, 0.6)'
+    : 'rgba(255, 255, 255, 1)';
+
   return (
     <>
       <div
         ref={cursorRef}
-        className="pointer-events-none fixed z-[9999] mix-blend-screen"
+        className={`pointer-events-none fixed z-[9999] ${isDark ? 'mix-blend-screen' : 'mix-blend-normal'}`}
         style={{
           transform: 'translate(-50%, -50%)',
           willChange: 'transform',
@@ -64,9 +89,9 @@ export function LiquidCursor() {
           <div
             className="absolute w-8 h-8 rounded-full blur-md"
             style={{
-              background: 'radial-gradient(circle, rgba(79, 126, 233, 0.8) 0%, rgba(30, 93, 217, 0.4) 70%, transparent 100%)',
+              background: ringColor,
               filter: 'blur(8px)',
-              boxShadow: '0 0 20px rgba(79, 126, 233, 0.6), 0 0 40px rgba(79, 126, 233, 0.3)',
+              boxShadow: `0 0 20px ${glowColor}, 0 0 40px ${glowColor.replace('0.6', '0.3')}`,
             }}
           />
 
@@ -77,8 +102,8 @@ export function LiquidCursor() {
               left: '50%',
               top: '50%',
               transform: 'translate(-50%, -50%)',
-              background: 'radial-gradient(circle, #FFFFFF 0%, #4F7EE9 100%)',
-              boxShadow: '0 0 15px rgba(79, 126, 233, 0.9), inset 0 0 10px rgba(255, 255, 255, 0.6)',
+              background: coreColor,
+              boxShadow: `0 0 15px ${shadowColor}, inset 0 0 10px rgba(255, 255, 255, 0.6)`,
             }}
             animate={{
               scale: [1, 1.5, 1],
@@ -97,8 +122,8 @@ export function LiquidCursor() {
               key={i}
               className="absolute w-2 h-2 rounded-full"
               style={{
-                background: 'radial-gradient(circle, rgba(79, 126, 233, 0.6) 0%, transparent 100%)',
-                boxShadow: '0 0 10px rgba(79, 126, 233, 0.5)',
+                background: trailColor,
+                boxShadow: `0 0 10px ${glowColor}`,
               }}
               animate={{
                 x: [0, Math.cos((i * Math.PI * 2) / 3) * 15, 0],
