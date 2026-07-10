@@ -3,19 +3,31 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Download, Smartphone, Heart, Zap, X } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import Image from 'next/image';
 
 export function PremiumModal() {
   const [isOpen, setIsOpen] = useState(false);
   const [hasShown, setHasShown] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const { resolvedTheme } = useTheme();
 
   useEffect(() => {
-    if (hasShown) return;
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted || hasShown) return;
     const timer = setTimeout(() => {
       setIsOpen(true);
       setHasShown(true);
     }, 60000);
     return () => clearTimeout(timer);
-  }, [hasShown]);
+  }, [hasShown, mounted]);
+
+  const isDark = resolvedTheme === 'dark';
+
+  if (!mounted) return null;
 
   return (
     <AnimatePresence mode="wait">
@@ -36,55 +48,65 @@ export function PremiumModal() {
             className="relative w-full max-w-md"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Gradient background glow */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 via-yellow-500/20 to-orange-500/20 rounded-3xl blur-2xl" />
-            
             {/* Main card */}
             <div 
-              className="relative rounded-3xl overflow-hidden border border-amber-300/30"
+              className={`relative rounded-2xl overflow-hidden transition-all ${
+                isDark 
+                  ? 'bg-[#0d1117] border border-slate-800'
+                  : 'bg-white border border-slate-200'
+              }`}
               style={{
-                background: 'linear-gradient(135deg, rgba(55, 38, 10, 0.8) 0%, rgba(45, 30, 5, 0.9) 100%)',
-                boxShadow: '0 20px 60px rgba(217, 119, 6, 0.3), inset 0 0 30px rgba(217, 119, 6, 0.1)'
+                boxShadow: isDark 
+                  ? '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+                  : '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
               }}
             >
-              {/* Luxury gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-600/5 via-transparent to-orange-600/5" />
 
               {/* Close button */}
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(false)}
-                className="absolute top-6 right-6 z-10 p-2 rounded-full text-amber-200/60 hover:text-amber-100 hover:bg-amber-500/10 transition-all"
+                className={`absolute top-4 right-4 z-10 p-2 rounded-full transition-all ${
+                  isDark
+                    ? 'text-slate-500 hover:text-slate-300 hover:bg-slate-800'
+                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
+                }`}
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </motion.button>
 
               {/* Content */}
-              <div className="relative p-8 md:p-10">
+              <div className="relative p-6 md:p-8">
                 {/* Header */}
                 <motion.div 
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 }}
-                  className="mb-8"
+                  className="text-center mb-6"
                 >
                   <div className="inline-block mb-4">
-                    <motion.div
-                      animate={{ rotate: [0, 360] }}
-                      transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
-                      className="p-3 rounded-full bg-gradient-to-br from-amber-500/20 to-orange-500/10 border border-amber-400/30"
-                    >
-                      <Download className="w-6 h-6 text-amber-300" />
-                    </motion.div>
+                    <div className={`p-3 rounded-full ${
+                      isDark
+                        ? 'bg-[#0046C0]/20'
+                        : 'bg-[#0046C0]/10'
+                    }`}>
+                      <Download className={`w-6 h-6 ${
+                        isDark ? 'text-[#0046C0]' : 'text-[#0046C0]'
+                      }`} />
+                    </div>
                   </div>
 
-                  <h2 className="text-3xl md:text-4xl font-black mb-3">
-                    <span className="bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-200 bg-clip-text text-transparent">
-                      Download NironCare
-                    </span>
+                  <h2 className={`text-2xl md:text-3xl font-bold mb-2 ${
+                    isDark ? 'text-white' : 'text-slate-900'
+                  }`}>
+                    Download NironCare
                   </h2>
-                  <p className="text-amber-100/70 text-lg">Healthcare excellence in your pocket</p>
+                  <p className={`text-sm ${
+                    isDark ? 'text-slate-400' : 'text-slate-600'
+                  }`}>
+                    Get the app for seamless healthcare access
+                  </p>
                 </motion.div>
 
                 {/* Features grid */}
@@ -92,7 +114,7 @@ export function PremiumModal() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="grid grid-cols-2 gap-4 mb-8"
+                  className="grid grid-cols-2 gap-3 mb-6"
                 >
                   {[
                     { icon: Smartphone, label: 'iOS & Android' },
@@ -107,10 +129,20 @@ export function PremiumModal() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 + i * 0.05 }}
-                        className="p-4 rounded-lg border border-amber-400/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5"
+                        className={`p-3 rounded-lg text-center ${
+                          isDark
+                            ? 'bg-slate-800/50 border border-slate-700'
+                            : 'bg-slate-50 border border-slate-200'
+                        }`}
                       >
-                        <Icon className="w-5 h-5 text-amber-300 mb-2" />
-                        <p className="text-xs font-semibold text-amber-100">{feature.label}</p>
+                        <Icon className={`w-4 h-4 mx-auto mb-1 ${
+                          isDark ? 'text-[#0046C0]' : 'text-[#0046C0]'
+                        }`} />
+                        <p className={`text-xs font-medium ${
+                          isDark ? 'text-slate-300' : 'text-slate-700'
+                        }`}>
+                          {feature.label}
+                        </p>
                       </motion.div>
                     );
                   })}
@@ -121,33 +153,37 @@ export function PremiumModal() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="space-y-3 mb-6"
+                  className="space-y-3"
                 >
-                  <motion.button
+                  {/* App Store Button */}
+                  <motion.a
+                    href="#"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-4 px-6 rounded-xl font-bold text-lg transition-all"
-                    style={{
-                      background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                      color: 'white',
-                      boxShadow: '0 10px 30px rgba(245, 158, 11, 0.3)'
-                    }}
+                    className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 bg-[#000000] hover:bg-[#1c1c1e] text-white"
                   >
-                    App Store
-                  </motion.button>
+                    <img 
+                      src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/apple.svg" 
+                      alt="Apple" 
+                      className="w-5 h-5 brightness-0 invert"
+                    />
+                    Download on the App Store
+                  </motion.a>
 
-                  <motion.button
+                  {/* Google Play Button */}
+                  <motion.a
+                    href="#"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="w-full py-4 px-6 rounded-xl font-bold text-lg transition-all"
-                    style={{
-                      background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
-                      color: '#1f2937',
-                      boxShadow: '0 10px 30px rgba(251, 191, 36, 0.2)'
-                    }}
+                    className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 bg-[#ffffff] hover:bg-[#2D2D2D] border border-slate-700/30 text-black shadow-sm"
                   >
-                    Google Play
-                  </motion.button>
+                    <img 
+                      src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/googleplay.svg" 
+                      alt="Google Play" 
+                      className="w-5 h-5" 
+                    />
+                    GET IT ON Google Play
+                  </motion.a>
                 </motion.div>
 
                 {/* Bottom text */}
@@ -155,25 +191,14 @@ export function PremiumModal() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.4 }}
-                  className="text-center"
+                  className="text-center mt-6"
                 >
-                  <p className="text-xs text-amber-100/50">
-                    Available on both iOS and Android platforms
+                  <p className={`text-xs ${
+                    isDark ? 'text-slate-500' : 'text-slate-400'
+                  }`}>
+                    Available on iOS and Android · Free download
                   </p>
                 </motion.div>
-
-                {/* Animated border */}
-                <motion.div 
-                  className="absolute inset-0 rounded-3xl pointer-events-none"
-                  animate={{
-                    boxShadow: [
-                      'inset 0 0 20px rgba(217, 119, 6, 0.2)',
-                      'inset 0 0 40px rgba(217, 119, 6, 0.3)',
-                      'inset 0 0 20px rgba(217, 119, 6, 0.2)',
-                    ]
-                  }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                />
               </div>
             </div>
           </motion.div>

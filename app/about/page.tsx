@@ -12,10 +12,10 @@ import {
   Eye, Sparkles, Building2, Quote, BadgeCheck, MapPin, Play,
   MessageSquare, FileText, Lock, BarChart3, ThumbsUp, Layers,
   CheckCircle2, BrainCircuit, Video, HeartPulse, Cpu, Rocket,
-  TrendingUp, Coffee, Smile, Briefcase, GraduationCap, BookOpen
+  TrendingUp, Coffee, Smile, Briefcase, GraduationCap, BookOpen,
+  Linkedin, Mail, Phone, Code, Database, Smartphone, LineChart, Palette
 } from 'lucide-react';
-import Image from 'next/image';
-import { CTA } from '@/components/cta'; // Import the CTA component
+import { CTA } from '@/components/cta';
 
 /* ─── animation presets ─── */
 const ease = [0.25, 0.46, 0.45, 0.94] as const;
@@ -126,7 +126,12 @@ function ParallaxImage({
   return (
     <div ref={ref} className={`overflow-hidden ${className}`}>
       <motion.div style={{ y }} className="w-full h-[120%] relative -top-[10%]">
-        <Image src={src} alt={alt} fill className="object-cover" />
+        <img 
+          src={src} 
+          alt={alt} 
+          className="w-full h-full object-cover"
+          loading="lazy"
+        />
       </motion.div>
     </div>
   );
@@ -158,6 +163,74 @@ function AnimatedNumber({ value }: { value: string }) {
   return <span ref={ref}>{display}{suffix}</span>;
 }
 
+/* ─── Team Member Card Component with Real Human Images ─── */
+function TeamMemberCard({ 
+  name, 
+  role, 
+  department,
+  bio, 
+  imageUrl,
+  socialLinks = {}
+}: { 
+  name: string; 
+  role: string; 
+  department?: string;
+  bio?: string; 
+  imageUrl: string;
+  socialLinks?: { linkedin?: string; email?: string };
+}) {
+  return (
+    <motion.div variants={fadeUp} custom={0} initial="hidden" whileInView="visible" viewport={{ once: true }}>
+      <TiltCard depth={10} className="h-full">
+        <div className="backdrop-blur-xl bg-white/60 dark:bg-white/5 border border-white/40 dark:border-white/10 rounded-2xl p-6 h-full flex flex-col items-center text-center group cursor-default hover:border-blue-400/30 transition-all duration-300">
+          {/* Real Human Image */}
+          <motion.div 
+            className="relative w-28 h-28 mb-5"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: 'spring', stiffness: 300 }}
+          >
+            <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-cyan-500 p-0.5">
+              <div className="w-full h-full rounded-full overflow-hidden bg-white dark:bg-slate-800">
+                <img 
+                  src={imageUrl}
+                  alt={name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-green-500 border-2 border-white dark:border-slate-800 flex items-center justify-center">
+              <BadgeCheck className="w-3 h-3 text-white" />
+            </div>
+          </motion.div>
+
+          <h3 className="font-bold text-slate-800 dark:text-white text-lg leading-tight">{name}</h3>
+          <p className="text-blue-600 dark:text-blue-400 text-sm font-semibold mt-1">{role}</p>
+          {department && (
+            <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 text-[10px] font-bold uppercase tracking-wider">
+              {department}
+            </span>
+          )}
+          {bio && <p className="text-slate-500 dark:text-slate-400 text-xs mt-3 leading-relaxed">{bio}</p>}
+          
+          {/* Social Links */}
+          <div className="flex gap-2 mt-4 pt-3 border-t border-slate-200 dark:border-white/10 w-full justify-center">
+            {socialLinks.email && (
+              <a href={`mailto:${socialLinks.email}`} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+                <Mail className="w-3.5 h-3.5 text-slate-400" />
+              </a>
+            )}
+            {socialLinks.linkedin && (
+              <a href={socialLinks.linkedin} target="_blank" rel="noopener noreferrer" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition-colors">
+                <Linkedin className="w-3.5 h-3.5 text-slate-400" />
+              </a>
+            )}
+          </div>
+        </div>
+      </TiltCard>
+    </motion.div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════
    PAGE COMPONENT
 ══════════════════════════════════════════════════════ */
@@ -178,7 +251,7 @@ export default function About() {
     { value: '50K+', label: 'Active Patients', icon: Heart, growth: '+40% YoY', color: 'from-blue-500 to-blue-600' },
     { value: '500+', label: 'Partner Clinics', icon: Stethoscope, growth: '+25% YoY', color: 'from-cyan-500 to-blue-500' },
     { value: '99%', label: 'Satisfaction Rate', icon: Shield, growth: 'Industry best', color: 'from-blue-600 to-indigo-600' },
-    { value: '24/7', label: 'AI Support', icon: Calendar, growth: 'Always on', color: 'from-sky-500 to-blue-600' },
+    { value: '24h', label: 'AI Support', icon: Calendar, growth: 'Always on', color: 'from-sky-500 to-blue-600' },
   ];
 
   const journeyStats = [
@@ -195,28 +268,106 @@ export default function About() {
     { title: 'Trust', description: 'Security, compliance, and full transparency.', icon: Award, detail: 'HIPAA compliant · Encrypted · Transparent pricing' },
   ];
 
+  // Team data with REAL human images from Unsplash
   const team = [
-    { name: 'Dr. Sarah Chen', role: 'Chief Medical Officer', bio: '15+ years in digital health leadership', expertise: 'Cardiology' },
-    { name: 'James Rodriguez', role: 'CEO & Founder', bio: 'Serial entrepreneur, healthcare innovator', expertise: 'Strategy' },
-    { name: 'Dr. Priya Patel', role: 'Head of AI Research', bio: 'PhD in Machine Learning & AI ethics', expertise: 'AI & ML' },
-    { name: 'Michael Wong', role: 'Chief Technology Officer', bio: 'Former Google engineering lead', expertise: 'Cloud' },
-    { name: 'Dr. Amanda Lee', role: 'Clinical Director', bio: 'Harvard-trained physician', expertise: 'Clinical' },
-    { name: 'David Kim', role: 'Head of Product', bio: 'Ex-Apple product manager', expertise: 'Product' },
+    { 
+      name: 'MRS. HEANG Omouy', 
+      role: 'Founder & CEO', 
+      department: 'Executive', 
+      bio: 'Visionary leader driving healthcare innovation across ASEAN', 
+      imageUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=200&h=200&fit=crop',
+      socialLinks: { email: 'omouy@nironcare.com' } 
+    },
+    { 
+      name: 'MR. HUY Sokchea', 
+      role: 'CPO & Global Partnership', 
+      department: 'Executive', 
+      bio: 'Strategic partnership architect and product vision lead', 
+      imageUrl: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=200&h=200&fit=crop',
+      socialLinks: { email: 'sokchea@nironcare.com' } 
+    },
+    { 
+      name: 'MRS. TES Putthira', 
+      role: 'CTO & AI Technical Lead', 
+      department: 'Engineering', 
+      bio: 'AI infrastructure and technical strategy expert', 
+      imageUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=200&h=200&fit=crop',
+      socialLinks: { email: 'putthira@nironcare.com' } 
+    },
+    { 
+      name: 'MR. OUCH Kongkea', 
+      role: 'Business Development Manager', 
+      department: 'Business', 
+      bio: 'Driving strategic growth and market expansion', 
+      imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop',
+      socialLinks: { email: 'kongkea@nironcare.com' } 
+    },
+    { 
+      name: 'MRS. TOCH Pheak', 
+      role: 'Business Development', 
+      department: 'Business', 
+      bio: 'Strategic partnerships and client relations', 
+      imageUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&h=200&fit=crop',
+      socialLinks: { email: 'pheak@nironcare.com' } 
+    },
+  ];
+
+  const developmentTeam = [
+    { 
+      name: 'MR. PHAT Sopheak', 
+      role: 'Senior Backend Developer', 
+      department: 'Engineering', 
+      bio: 'Backend architecture and API development', 
+      imageUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&h=200&fit=crop',
+      socialLinks: { email: 'sopheak@nironcare.com' } 
+    },
+    { 
+      name: 'MR. PHOUEK Sauth', 
+      role: 'Senior Mobile Developer', 
+      department: 'Engineering', 
+      bio: 'iOS & Android expert', 
+      imageUrl: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&h=200&fit=crop',
+      socialLinks: { email: 'sauth@nironcare.com' } 
+    },
+    { 
+      name: 'MR. YEM Kouy', 
+      role: 'Senior Mobile Developer', 
+      department: 'Engineering', 
+      bio: 'Cross-platform mobile specialist', 
+      imageUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop',
+      socialLinks: { email: 'kouy@nironcare.com' } 
+    },
+    { 
+      name: 'ADITI', 
+      role: 'Senior Software Development & AI Research', 
+      department: 'AI Research', 
+      bio: 'Machine learning and AI innovation', 
+      imageUrl: 'https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=200&h=200&fit=crop',
+      socialLinks: { email: 'aditi@nironcare.com' } 
+    },
+    { 
+      name: 'MR. KEO Munin', 
+      role: 'UX/UI Specialist', 
+      department: 'Design', 
+      bio: 'User experience and interface design', 
+      imageUrl: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=200&h=200&fit=crop',
+      socialLinks: { email: 'munin@nironcare.com' } 
+    },
   ];
 
   const timeline = [
     { year: '2020', title: 'Founded', description: 'NironCare launches with a vision to democratise ASEAN healthcare.', img: 'https://images.unsplash.com/photo-1584515933487-779824d29309?w=400&q=80' },
-    { year: '2021', title: '10 000 Patients', description: 'First major milestone: 10 K patients served across 3 countries.', img: 'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=400&q=80' },
-    { year: '2022', title: 'AI Platform', description: 'Proprietary AI clinical assistant goes live — reducing triage time by 60 %.', img: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&q=80' },
+    { year: '2021', title: '10,000 Patients', description: 'First major milestone: 10K patients served across 3 countries.', img: 'https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=400&q=80' },
+    { year: '2022', title: 'AI Platform', description: 'Proprietary AI clinical assistant goes live — reducing triage time by 60%.', img: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=400&q=80' },
     { year: '2023', title: 'Regional Expansion', description: 'Expanded to Malaysia, Thailand & Vietnam with 200+ partner clinics.', img: 'https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=400&q=80' },
-    { year: '2024', title: '100 K+ Lives', description: 'Crossed 100 K active patients and 500 partner clinics.', img: 'https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=400&q=80' },
+    { year: '2024', title: '100K+ Lives', description: 'Crossed 100K active patients and 500 partner clinics.', img: 'https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=400&q=80' },
   ];
 
   const testimonials = [
-    { name: 'Dr. Priya Ramalingam', role: 'Medical Director, KPJ Damansara', text: 'NironCare cut our average wait from 45 minutes to under 10. Revenue grew 34 % in the first quarter alone.', rating: 5, img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=80&q=80' },
+    { name: 'Dr. Priya Ramalingam', role: 'Medical Director, KPJ Damansara', text: 'NironCare cut our average wait from 45 minutes to under 10. Revenue grew 34% in the first quarter alone.', rating: 5, img: 'https://images.unsplash.com/photo-1594824476967-48c8b964273f?w=80&q=80' },
     { name: 'Dr. Ahmad Fadzil', role: 'Head of Emergency, Gleneagles KL', text: 'The AI triage system flags high-risk patients before they reach the consultation room. It has changed how we operate.', rating: 5, img: 'https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?w=80&q=80' },
-    { name: 'Nur Aisyah', role: 'Chief Nursing Officer, NUH Singapore', text: 'Our nurses spend 40 % less time on admin. Every minute saved goes back to the patient.', rating: 5, img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=80&q=80' },
-    { name: 'Dr. Ravi Mehta', role: 'Pulmonologist, Bumrungrad', text: 'The telemedicine platform is the most seamless I have used. Patients love the convenience; adoption hit 80 % within a month.', rating: 5, img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=80&q=80' },
+    { name: 'Nur Aisyah', role: 'Chief Nursing Officer, NUH Singapore', text: 'Our nurses spend 40% less time on admin. Every minute saved goes back to the patient.', rating: 5, img: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?w=80&q=80' },
+    { name: 'Dr. Ravi Mehta', role: 'Pulmonologist, Bumrungrad', text: 'The telemedicine platform is the most seamless I have used. Patients love the convenience; adoption hit 80% within a month.', rating: 5, img: 'https://images.unsplash.com/photo-1622253692010-333f2da6031d?w=80&q=80' },
   ];
 
   const partners = [
@@ -247,17 +398,15 @@ export default function About() {
             style={{ y: heroY, scale: heroScale }}
             className="absolute inset-0 z-0"
           >
-            <Image
+            <img
               src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1800&q=90"
               alt="Modern hospital corridor"
-              fill
-              className="object-cover object-center"
-              priority
+              className="w-full h-full object-cover object-center"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-slate-900/60 to-transparent dark:from-[#070c14]/95 dark:via-[#070c14]/70" />
           </motion.div>
 
-          {/* Floating orbs — subtle, NOT abstract */}
+          {/* Floating orbs */}
           <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
             <motion.div
               className="absolute top-1/3 right-1/4 w-[500px] h-[500px] rounded-full"
@@ -324,11 +473,10 @@ export default function About() {
               <TiltCard depth={10}>
                 <div className={`${glass} rounded-3xl overflow-hidden`}>
                   <div className="relative h-72">
-                    <Image
+                    <img
                       src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&q=80"
                       alt="Doctor consulting patient"
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                     <div className="absolute bottom-4 left-4 right-4">
@@ -407,18 +555,17 @@ export default function About() {
         <section className="py-28 px-4 sm:px-8 lg:px-12">
           <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-8 items-stretch">
 
-            {/* Mission — photo card */}
+            {/* Mission */}
             <motion.div
               variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}
             >
               <TiltCard depth={8} className="h-full">
                 <div className={`${glass} rounded-3xl overflow-hidden h-full flex flex-col`}>
                   <div className="relative h-64 flex-shrink-0">
-                    <Image
+                    <img
                       src="https://images.unsplash.com/photo-1631217868264-e5b90bb7e133?w=900&q=80"
                       alt="Doctors collaborating"
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                     <div className="absolute bottom-4 left-4">
@@ -450,18 +597,17 @@ export default function About() {
               </TiltCard>
             </motion.div>
 
-            {/* Vision — photo card */}
+            {/* Vision */}
             <motion.div
               variants={fadeUp} custom={1} initial="hidden" whileInView="visible" viewport={{ once: true }}
             >
               <TiltCard depth={8} className="h-full">
                 <div className={`${glass} rounded-3xl overflow-hidden h-full flex flex-col`}>
                   <div className="relative h-64 flex-shrink-0">
-                    <Image
+                    <img
                       src="https://images.unsplash.com/photo-1551190822-a9333d879b1f?w=900&q=80"
                       alt="Futuristic hospital technology"
-                      fill
-                      className="object-cover"
+                      className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
                     <div className="absolute bottom-4 left-4">
@@ -497,7 +643,6 @@ export default function About() {
 
         {/* ══════════ IMPACT NUMBERS ══════════ */}
         <section className="relative py-28 overflow-hidden">
-          {/* Parallax background */}
           <ParallaxImage
             src="https://images.unsplash.com/photo-1538108149393-fbbd81895907?w=1800&q=80"
             alt="Hospital team"
@@ -613,7 +758,11 @@ export default function About() {
                           <div className={`${glass} rounded-2xl overflow-hidden
                             ${isLeft ? 'text-right' : 'text-left'}`}>
                             <div className="relative h-40">
-                              <Image src={item.img} alt={item.title} fill className="object-cover" />
+                              <img 
+                                src={item.img} 
+                                alt={item.title} 
+                                className="w-full h-full object-cover"
+                              />
                               <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
                               <div className={`absolute bottom-3 ${isLeft ? 'right-4' : 'left-4'}`}>
                                 <span className="text-3xl font-black text-white/90">{item.year}</span>
@@ -632,7 +781,7 @@ export default function About() {
                         bg-gradient-to-br from-blue-500 to-cyan-500 border-4 border-white dark:border-[#0b1220]
                         shadow-lg shadow-blue-500/40 z-10" />
 
-                      {/* Spacer on other side */}
+                      {/* Spacer */}
                       <div className="flex-1" />
                     </motion.div>
                   );
@@ -642,7 +791,7 @@ export default function About() {
           </div>
         </section>
 
-        {/* ══════════ LEADERSHIP TEAM ══════════ */}
+        {/* ══════════ OUR TEAM ══════════ */}
         <section className="py-28 px-4 sm:px-8 lg:px-12 bg-slate-50 dark:bg-[#070c14]">
           <div className="max-w-7xl mx-auto">
             <motion.div
@@ -650,53 +799,42 @@ export default function About() {
               className="text-center mb-16"
             >
               <SectionLabel><Users className="w-3 h-3" /> The People</SectionLabel>
-              <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">Leadership Team</h2>
-              <p className="text-slate-500 dark:text-slate-400 mt-3">Experienced leaders from medicine, tech, and strategy</p>
+              <h2 className="text-4xl font-extrabold text-slate-800 dark:text-white mt-2">Our Team</h2>
+              <p className="text-slate-500 dark:text-slate-400 mt-3">Passionate individuals driving healthcare innovation across ASEAN</p>
             </motion.div>
 
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {team.map((member, i) => (
-                <motion.div
-                  key={member.name}
-                  variants={fadeUp} custom={i * 0.5}
-                  initial="hidden" whileInView="visible"
-                  viewport={{ once: true }}
-                >
-                  <TiltCard depth={10} className="h-full">
-                    <div className={`${glass} rounded-2xl p-7 h-full flex flex-col items-center text-center
-                      group cursor-default hover:border-blue-400/30 transition-colors duration-300`}>
-                      {/* Avatar */}
-                      <motion.div
-                        className="relative w-20 h-20 mb-5"
-                        whileHover={{ scale: 1.08 }}
-                        transition={{ type: 'spring', stiffness: 300 }}
-                      >
-                        <div className="w-full h-full rounded-full bg-gradient-to-br from-blue-500 to-cyan-500
-                          flex items-center justify-center shadow-lg shadow-blue-500/30">
-                          <span className="text-2xl font-bold text-white">{member.name.charAt(0)}</span>
-                        </div>
-                        <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-green-500
-                          border-2 border-white dark:border-[#070c14] flex items-center justify-center">
-                          <BadgeCheck className="w-3 h-3 text-white" />
-                        </div>
-                      </motion.div>
+            {/* Executive Leadership */}
+            <div className="mb-16">
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b border-slate-200 dark:border-white/10 pb-4 inline-block w-full">
+                Executive Leadership
+              </h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {team.slice(0, 3).map((member) => (
+                  <TeamMemberCard key={member.name} {...member} />
+                ))}
+              </div>
+              <div className="grid sm:grid-cols-2 gap-6 mt-6">
+                {team.slice(3).map((member) => (
+                  <TeamMemberCard key={member.name} {...member} />
+                ))}
+              </div>
+            </div>
 
-                      <h3 className="font-bold text-slate-800 dark:text-white text-lg leading-tight">{member.name}</h3>
-                      <p className="text-blue-600 dark:text-blue-400 text-sm font-semibold mt-1">{member.role}</p>
-                      <span className="inline-block mt-2 px-2.5 py-0.5 rounded-full bg-cyan-500/10
-                        text-cyan-600 dark:text-cyan-400 text-[11px] font-bold uppercase tracking-wider">
-                        {member.expertise}
-                      </span>
-                      <p className="text-slate-500 dark:text-slate-400 text-sm mt-4 leading-relaxed">{member.bio}</p>
-                    </div>
-                  </TiltCard>
-                </motion.div>
-              ))}
+            {/* Development & Engineering Team */}
+            <div>
+              <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-8 text-center border-b border-slate-200 dark:border-white/10 pb-4 inline-block w-full">
+                Engineering & Product
+              </h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {developmentTeam.map((member) => (
+                  <TeamMemberCard key={member.name} {...member} />
+                ))}
+              </div>
             </div>
           </div>
         </section>
 
-        {/* ══════════ VISUAL BREAK — full-width split ══════════ */}
+        {/* ══════════ VISUAL BREAK ══════════ */}
         <section className="grid lg:grid-cols-2 min-h-[420px]">
           <ParallaxImage
             src="https://images.unsplash.com/photo-1504813184591-01572f98c85f?w=900&q=80"
@@ -757,8 +895,12 @@ export default function About() {
                   </p>
                   <div className="mt-5 pt-4 border-t border-slate-200 dark:border-white/10">
                     <div className="flex items-center gap-3">
-                      <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0 bg-gradient-to-br from-blue-500 to-cyan-500">
-                        <Image src={t.img} alt={t.name} fill className="object-cover" />
+                      <div className="relative w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+                        <img 
+                          src={t.img} 
+                          alt={t.name} 
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="min-w-0">
                         <p className="font-semibold text-slate-800 dark:text-white text-sm truncate">{t.name}</p>
