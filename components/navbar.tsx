@@ -2,9 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  Menu, X, Download, Moon, Sun, ChevronDown, ArrowRight,
+  Menu, X, Download, ChevronDown, ArrowRight,
   Heart, Building2, Leaf, Newspaper, Mail, Users, LayoutGrid,
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
@@ -19,47 +19,135 @@ interface DropdownItem {
   description: string;
 }
 
-function MegaMenu({ items, isOpen, onItemClick }: { items: DropdownItem[]; isOpen: boolean; onItemClick?: () => void }) {
+/* ------------------------------------------------------------------ */
+/*  Mega Menu                                                          */
+/*  A large floating panel with a card grid on the left and a single   */
+/*  highlighted / featured item on the right, in the style of premium  */
+/*  enterprise SaaS navigation. Content is identical to the original   */
+/*  dropdown — only the presentation changes.                          */
+/* ------------------------------------------------------------------ */
+function MegaMenu({
+  id,
+  items,
+  isOpen,
+  onItemClick,
+  onDemoClick,
+}: {
+  id: string;
+  items: DropdownItem[];
+  isOpen: boolean;
+  onItemClick?: () => void;
+  onDemoClick: () => void;
+}) {
   if (!isOpen) return null;
-  
+
+  const featured = items[0];
+  const twoColumns = items.length >= 4;
+
   return (
-    <div
+    <motion.div
+      role="menu"
+      aria-label={`${id} menu`}
+      initial={{ opacity: 0, y: -8, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -8, scale: 0.98 }}
+      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
       className="
-        absolute top-full left-1/2 -translate-x-1/2 mt-2 w-64 z-50
+        absolute top-full left-1/2 -translate-x-1/2 mt-3 z-50
+        w-[min(92vw,900px)]
         bg-white dark:bg-[#0d1117]
-        rounded-xl border border-slate-200 dark:border-slate-700
-        shadow-[0_20px_60px_-8px_rgba(0,0,0,0.14)]
-        dark:shadow-[0_20px_60px_-8px_rgba(0,0,0,0.6)]
+        rounded-[22px] border border-slate-200/80 dark:border-slate-700/70
+        shadow-[0_28px_70px_-12px_rgba(15,23,42,0.18)]
+        dark:shadow-[0_28px_70px_-12px_rgba(0,0,0,0.65)]
         overflow-hidden
-        animate-in fade-in duration-150
       "
     >
-      <div className="p-1.5">
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            onClick={onItemClick}
-            className="group flex items-start gap-3 p-2.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/70 transition-colors duration-150"
+      <div className="grid grid-cols-[1fr_300px]">
+        {/* Left: item grid */}
+        <div className="p-8">
+          <div className={`grid gap-2 ${twoColumns ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            {items.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                role="menuitem"
+                onClick={onItemClick}
+                className="
+                  group flex items-start gap-3.5 p-3.5 rounded-2xl
+                  transition-all duration-300 ease-out
+                  hover:bg-slate-50 dark:hover:bg-white/[0.06]
+                  hover:-translate-y-0.5
+                  focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0046C0]/50 focus-visible:bg-slate-50 dark:focus-visible:bg-white/[0.06]
+                "
+              >
+                <div
+                  className="
+                    w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0
+                    bg-[#0046C0]/8 dark:bg-white/10
+                    group-hover:bg-[#0046C0]/15 dark:group-hover:bg-white/15
+                    transition-colors duration-300
+                  "
+                >
+                  {item.icon}
+                </div>
+                <div className="flex-1 min-w-0 pt-0.5">
+                  <p className="text-[14px] font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0046C0] dark:group-hover:text-blue-300 transition-colors duration-300 leading-none mb-1">
+                    {item.label}
+                  </p>
+                  <p className="text-[12.5px] text-slate-400 dark:text-slate-500 leading-snug">
+                    {item.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+
+        {/* Right: featured panel */}
+        <div
+          className="
+            relative p-8 flex flex-col justify-between
+            bg-gradient-to-br from-[#0046C0]/[0.06] to-[#0046C0]/[0.02]
+            dark:from-white/[0.04] dark:to-white/[0.01]
+            border-l border-slate-100 dark:border-slate-800
+          "
+        >
+          <div>
+            <div className="w-11 h-11 rounded-xl flex items-center justify-center bg-white dark:bg-white/10 shadow-sm mb-5">
+              {featured.icon}
+            </div>
+            <p className="text-[15px] font-semibold text-slate-800 dark:text-slate-100 leading-tight mb-2">
+              {featured.label}
+            </p>
+            <p className="text-[13px] text-slate-500 dark:text-slate-400 leading-relaxed">
+              {featured.description}
+            </p>
+          </div>
+
+          <motion.button
+            onClick={() => {
+              onDemoClick();
+              onItemClick?.();
+            }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            className="
+              mt-6 w-full flex items-center justify-center gap-2 h-11 rounded-lg
+              bg-[#0046C0] text-white text-sm font-medium
+              shadow-sm transition-colors duration-300 hover:bg-[#0039a6]
+              focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0046C0]/50 focus-visible:ring-offset-2
+            "
           >
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#0046C0]/8 dark:bg-white/10 group-hover:bg-[#0046C0]/15 dark:group-hover:bg-white/15 transition-colors">
-              {item.icon}
-            </div>
-            <div className="flex-1 min-w-0 pt-0.5">
-              <p className="text-[13px] font-semibold text-slate-800 dark:text-slate-100 group-hover:text-[#0046C0] dark:group-hover:text-blue-300 transition-colors leading-none mb-0.5">
-                {item.label}
-              </p>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 leading-snug">{item.description}</p>
-            </div>
-          </Link>
-        ))}
+            Request a Demo <ArrowRight className="w-4 h-4" />
+          </motion.button>
+        </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
 // icons inside dropdown always use brand blue on light dropdown bg
-const ico = (C: React.ComponentType<any>) => <C className="w-3.5 h-3.5 text-[#0046C0]" strokeWidth={1.5} />;
+const ico = (C: React.ComponentType<any>) => <C className="w-4 h-4 text-[#0046C0]" strokeWidth={1.5} />;
 
 const platformItems: DropdownItem[] = [
   { href: '/solutions',              label: 'All Solutions',     icon: ico(LayoutGrid), description: 'Explore the full platform'       },
@@ -91,17 +179,17 @@ export function Navbar() {
   const [isPressed, setIsPressed] = useState(false);
   const { setTheme, resolvedTheme } = useTheme();
   const pathname = usePathname();
-  
+
   // Refs for dropdown timers
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const dropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
 
   useEffect(() => { setMounted(true); }, []);
-  
+
   // Close mobile menu and dropdowns on route change
-  useEffect(() => { 
-    setOpenDropdown(null); 
-    setIsOpen(false); 
+  useEffect(() => {
+    setOpenDropdown(null);
+    setIsOpen(false);
   }, [pathname]);
 
   // Cleanup timeouts
@@ -136,6 +224,19 @@ export function Navbar() {
 
   const handleDropdownItemClick = () => {
     setOpenDropdown(null);
+  };
+
+  const handleTriggerClick = (key: string) => {
+    setOpenDropdown((prev) => (prev === key ? null : key));
+  };
+
+  const handleTriggerKeyDown = (e: React.KeyboardEvent, key: string) => {
+    if (e.key === 'Escape') {
+      setOpenDropdown(null);
+    } else if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleTriggerClick(key);
+    }
   };
 
   // Handle clicking outside to close dropdowns
@@ -197,19 +298,28 @@ export function Navbar() {
                   onMouseEnter={() => handleMouseEnter(key)}
                   onMouseLeave={() => handleMouseLeave(key)}
                 >
-                  <button 
-                    className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 text-slate-700 dark:text-white/90 hover:text-[#0046C0] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10"
+                  <button
+                    onClick={() => handleTriggerClick(key)}
+                    onKeyDown={(e) => handleTriggerKeyDown(e, key)}
+                    className="flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 text-slate-700 dark:text-white/90 hover:text-[#0046C0] dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/10 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0046C0]/50"
                     aria-expanded={openDropdown === key}
                     aria-haspopup="true"
+                    aria-controls={`megamenu-${key}`}
                   >
                     {label}
                     <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${openDropdown === key ? 'rotate-180' : ''}`} />
                   </button>
-                  <MegaMenu 
-                    items={items} 
-                    isOpen={openDropdown === key} 
-                    onItemClick={handleDropdownItemClick}
-                  />
+                  <AnimatePresence>
+                    {openDropdown === key && (
+                      <MegaMenu
+                        id={`megamenu-${key}`}
+                        items={items}
+                        isOpen={openDropdown === key}
+                        onItemClick={handleDropdownItemClick}
+                        onDemoClick={handleDemoClick}
+                      />
+                    )}
+                  </AnimatePresence>
                 </div>
               ))}
             </div>
@@ -253,7 +363,7 @@ export function Navbar() {
                 <Download className="w-4 h-4" />
                 <span className="font-medium tracking-normal">Download App</span>
               </motion.button>
-              
+
               {/* Request a Demo Button */}
               <motion.button
                 onClick={handleDemoClick}
@@ -301,7 +411,7 @@ export function Navbar() {
             </div>
           </div>
 
-          {/* Mobile menu */}
+          {/* Mobile menu — unchanged pattern, refined spacing */}
           <AnimatePresence>
             {isOpen && (
               <motion.div
@@ -311,7 +421,7 @@ export function Navbar() {
                 transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="md:hidden overflow-hidden border-t border-slate-100 dark:border-blue-700/50"
               >
-                <div className="py-3 px-2 space-y-0.5">
+                <div className="py-4 px-2 space-y-1">
                   {[
                     { href: '/', label: 'Home' },
                     { href: '/solutions', label: 'Platform' },
@@ -330,18 +440,18 @@ export function Navbar() {
                       <Link
                         href={item.href}
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center justify-between px-3 py-3 rounded-lg text-sm font-medium text-slate-700 dark:text-white/90 hover:text-[#0046C0] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/10 transition-all"
+                        className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-slate-700 dark:text-white/90 hover:text-[#0046C0] dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/10 transition-all"
                       >
                         {item.label}
                         <ArrowRight className="w-3.5 h-3.5 text-slate-300 dark:text-white/30" />
                       </Link>
                     </motion.div>
                   ))}
-                  <div className="pt-2 pb-1 px-1 space-y-2">
+                  <div className="pt-3 pb-1 px-1 space-y-2.5">
                     <motion.div whileTap={{ scale: 0.97 }}>
                       <Button
                         onClick={() => { setIsDemoModalOpen(true); setIsOpen(false); }}
-                        className="w-full bg-white text-[#0046C0] border border-[#0046C0]/30 hover:bg-slate-50 font-medium rounded-md h-11 text-sm shadow-sm"
+                        className="w-full bg-white text-[#0046C0] border border-[#0046C0]/30 hover:bg-slate-50 font-medium rounded-xl h-12 text-sm shadow-sm"
                       >
                         Request a Demo <ArrowRight className="w-4 h-4 ml-1" />
                       </Button>
@@ -349,7 +459,7 @@ export function Navbar() {
                     <motion.div whileTap={{ scale: 0.97 }}>
                       <Button
                         onClick={() => { setIsModalOpen(true); setIsOpen(false); }}
-                        className="w-full bg-[#0046C0] hover:bg-[#0039a6] text-white font-medium rounded-md h-11 text-sm shadow-sm"
+                        className="w-full bg-[#0046C0] hover:bg-[#0039a6] text-white font-medium rounded-xl h-12 text-sm shadow-sm"
                       >
                         <Download className="w-4 h-4 mr-2" />
                         Download App
@@ -376,8 +486,8 @@ export function Navbar() {
                 Get the app to manage appointments, access health records, and consult with doctors — all in one place.
               </DialogDescription>
             </DialogHeader>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
@@ -390,9 +500,9 @@ export function Navbar() {
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 bg-[#000000] hover:bg-[#1c1c1e] text-white"
               >
-                <img 
-                  src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/apple.svg" 
-                  alt="Apple" 
+                <img
+                  src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/apple.svg"
+                  alt="Apple"
                   className="w-5 h-5 brightness-0 invert"
                 />
                 Download on the App Store
@@ -405,10 +515,10 @@ export function Navbar() {
                 whileTap={{ scale: 0.98 }}
                 className="w-full py-3.5 px-4 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 bg-[#ffffff] hover:bg-[#2D2D2D] border border-slate-700/30 text-black shadow-sm"
               >
-                <img 
-                  src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/googleplay.svg" 
-                  alt="Google Play" 
-                  className="w-5 h-5" 
+                <img
+                  src="https://cdn.jsdelivr.net/npm/simple-icons@v13/icons/googleplay.svg"
+                  alt="Google Play"
+                  className="w-5 h-5"
                 />
                 GET IT ON Google Play
               </motion.a>
@@ -430,7 +540,7 @@ export function Navbar() {
                 See how NironCare can transform your healthcare practice. Fill out the form below and our team will get back to you within 24 hours.
               </DialogDescription>
             </DialogHeader>
-            
+
             <form className="space-y-4 mt-6" onSubmit={(e) => e.preventDefault()}>
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Full Name *</label>
